@@ -44,7 +44,7 @@ module.exports = {
 
     download_file : function(url, path) {
       return new Promise((resolve, reject) => {
-        let file = fs.createWriteStream(path);
+        const file = fs.createWriteStream(path);
         https.get(url, function(response) {
           response.on('data', function(chunk) {
             file.write(chunk)
@@ -56,6 +56,25 @@ module.exports = {
             reject(err)
           })
         })
+      })
+    },
+
+    read_file: function(path) {
+      return new Promise((resolve, reject) => {
+        const file = fs.createReadStream(path);
+        let data = ''
+
+        file.on('data', function(chunk) {
+            data += chunk
+        });
+
+        file.on('end', function() {
+            resolve(data)
+        });
+
+        file.on('error', function(err) {
+            resolve(err)
+        });
       })
     }
 }

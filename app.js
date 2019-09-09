@@ -20,10 +20,10 @@ app.get('/download-stations/:lang', (req, res, next) => {
 
   const errHandler = function(err) {
     console.log(err)
-    res.send(error)
+    res.send(err)
   }
 
-  systemInfoPromise = apiHelper.get_system_information()
+  apiHelper.get_system_information()
     .then(JSON.parse, errHandler)
     .then(function(result) {
       const sysName = result.data.name
@@ -34,5 +34,19 @@ app.get('/download-stations/:lang', (req, res, next) => {
             console.log(response)
             res.send(response)
         }, errHandler)
+    }, errHandler)
+})
+
+// get stations informations from file
+app.get('/get-stations-info', (req, res, next) => {
+  const errHandler = function(err) {
+    console.log(err)
+    res.send(err)
+  }
+
+  apiHelper.read_file('./datas/stations_Bixi_MTL_en.json')
+    .then(JSON.parse, errHandler)
+    .then(function(result) {
+      res.send(result.data.stations)
     }, errHandler)
 })
