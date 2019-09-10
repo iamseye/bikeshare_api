@@ -42,6 +42,30 @@ module.exports = {
       })
     },
 
+    get_station_status : function(id) {
+      const options = {
+        url: process.env.API_GBFS_STATIONS_STATUS,
+        headers: { 'User-Agent': process.env.APP_NAME + '/' + process.env.VERSION }
+      }
+
+      return new Promise((resolve, reject) => {
+        request(options, function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            const result = JSON.parse(response.body)
+            result.data.stations.map((item, i) => {
+              if (item.station_id == id) {
+                resolve(item)
+              }
+            })
+          }
+
+          if (error) {
+            reject(error)
+          }
+        })
+      })
+    },
+
     download_file : function(url, path) {
       return new Promise((resolve, reject) => {
         const file = fs.createWriteStream(path);

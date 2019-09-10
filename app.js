@@ -7,6 +7,11 @@ const request = require('request')
 app.use(cors())
 dotenv.config()
 
+const errHandler = function(err) {
+  console.log(err)
+  res.send(err)
+}
+
 var apiHelper = require('./apiHelper')
 
 app.listen(process.env.PORT, () => {
@@ -15,13 +20,7 @@ app.listen(process.env.PORT, () => {
 
 // download all station informations
 app.get('/download-stations/:lang', (req, res, next) => {
-
   const lang = req.params.lang ? req.params.lang : process.env.DEFAULT_LANG
-
-  const errHandler = function(err) {
-    console.log(err)
-    res.send(err)
-  }
 
   apiHelper.get_system_information()
     .then(JSON.parse, errHandler)
@@ -38,15 +37,21 @@ app.get('/download-stations/:lang', (req, res, next) => {
 })
 
 // get stations informations from file
-app.get('/get-stations-info', (req, res, next) => {
-  const errHandler = function(err) {
-    console.log(err)
-    res.send(err)
-  }
-
+app.get('/get-stations-info/', (req, res, next) => {
   apiHelper.read_file('./datas/stations_Bixi_MTL_en.json')
     .then(JSON.parse, errHandler)
     .then(function(result) {
-      res.send(result.data.stations)
+      res.send(result)
+    }, errHandler)
+})
+
+app.get('/get-station-status/', (req, res, next) => {
+  if (!req.query.id) {
+    res.send('Parms missing')
+  }
+
+  apiHelper.get_station_status(req.query.id)
+    .then(function(result) {
+      res.send(result)
     }, errHandler)
 })
