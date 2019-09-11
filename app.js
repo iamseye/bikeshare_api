@@ -4,6 +4,7 @@ const dotenv = require('dotenv')
 const app = express()
 const request = require('request')
 
+app.use(express.json())
 app.use(cors())
 dotenv.config()
 
@@ -40,18 +41,18 @@ app.get('/download-stations/:lang', (req, res, next) => {
 app.get('/get-stations-info/', (req, res, next) => {
   apiHelper.read_file('./datas/stations_Bixi_MTL_en.json')
     .then(JSON.parse, errHandler)
-    .then(function(result) {
-      res.send(result)
+    .then(response => {
+      res.send(response)
     }, errHandler)
 })
 
-app.get('/get-station-status/', (req, res, next) => {
-  if (!req.query.id) {
+app.post('/get-station-status/', (req, res, next) => {
+  if (!req.body.id) {
     res.send('Parms missing')
   }
 
-  apiHelper.get_station_status(req.query.id)
-    .then(function(result) {
-      res.send(result)
+  apiHelper.get_station_status(req.body.id)
+    .then(response => {
+      res.send(response)
     }, errHandler)
 })
