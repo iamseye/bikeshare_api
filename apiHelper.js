@@ -3,7 +3,7 @@ const fs = require('fs')
 const request = require('request')
 
 module.exports = {
-    get_system_information : function() {
+    get_system_information : () =>  {
       const options = {
         url: process.env.API_GBFS_SYS_INFO,
         headers: { 'User-Agent': process.env.APP_NAME + '/' + process.env.VERSION }
@@ -22,14 +22,14 @@ module.exports = {
       })
     },
 
-    get_stations_information : function() {
+    get_stations_information : () => {
       const options = {
         url: process.env.API_GBFS_STATIONS_INFO,
         headers: { 'User-Agent': process.env.APP_NAME + '/' + process.env.VERSION }
       }
 
       return new Promise((resolve, reject) => {
-        request(options, function (error, response, body) {
+        request(options, (error, response, body) => {
           if (!error && response.statusCode == 200) {
             resolve(response.body)
           }
@@ -42,7 +42,7 @@ module.exports = {
       })
     },
 
-    get_station_status : function(id) {
+    get_station_status : (id) => {
       const options = {
         url: process.env.API_GBFS_STATIONS_STATUS,
         headers: { 'User-Agent': process.env.APP_NAME + '/' + process.env.VERSION }
@@ -66,24 +66,28 @@ module.exports = {
       })
     },
 
-    download_file : function(url, path) {
+    download_file : (url, path) => {
+      const options = {
+        url: url,
+        headers: { 'User-Agent': process.env.APP_NAME + '/' + process.env.VERSION }
+      }
+
       return new Promise((resolve, reject) => {
         const file = fs.createWriteStream(path);
-        https.get(url, function(response) {
-          response.on('data', function(chunk) {
-            file.write(chunk)
-          })
-          response.on('end', function() {
+
+        request(options, function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            file.write(response.body)
             resolve('download file completed. Path: ' + path)
-          })
-          response.on('error', function(err) {
-            reject(err)
-          })
+          }
+          if (error) {
+            reject(error)
+          }
         })
       })
     },
 
-    read_file: function(path) {
+    read_file: (path) => {
       return new Promise((resolve, reject) => {
         const file = fs.createReadStream(path);
         let data = ''
